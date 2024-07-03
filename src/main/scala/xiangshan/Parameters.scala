@@ -479,6 +479,27 @@ case class XSCoreParameters
     )
   }
 
+  val memUnitParams = Seq(
+    MemUnitParams(
+      unitType = AtomicUnit(),
+    ),
+    MemUnitParams(
+      unitType = LoadUnit(),
+    ),
+    MemUnitParams(
+      unitType = LoadUnit(),
+    ),
+    MemUnitParams(
+      unitType = LoadUnit(),
+    ),
+    MemUnitParams(
+      unitType = StoreUnit(),
+    ),
+    MemUnitParams(
+      unitType = StoreUnit(),
+    ),
+  )
+
   def PregIdxWidthMax = intPreg.addrWidth max vfPreg.addrWidth
 
   def iqWakeUpParams = {
