@@ -43,6 +43,7 @@ import xiangshan.frontend.HasInstrMMIOConst
 import xiangshan.mem.prefetch.{BasePrefecher, L1Prefetcher, SMSParams, SMSPrefetcher}
 import xiangshan.backend.datapath.NewPipelineConnect
 import system.SoCParamsKey
+import utility.mbist.MbistPipeline
 
 trait HasMemBlockParameters extends HasXSParameter {
   // number of memory units
@@ -290,6 +291,7 @@ class MemBlockImp(outer: MemBlock) extends LazyModuleImp(outer)
     val outer_beu_errors_icache = Output(new L1BusErrorUnitInfo)
     val inner_l2_pf_enable = Input(Bool())
     val outer_l2_pf_enable = Output(Bool())
+    val dft_reset = Input(new DFTResetSignals())
     // val inner_hc_perfEvents = Output(Vec(numPCntHc * coreParams.L2NBanks, new PerfEvent))
     // val outer_hc_perfEvents = Input(Vec(numPCntHc * coreParams.L2NBanks, new PerfEvent))
   })
@@ -1642,6 +1644,7 @@ class MemBlockImp(outer: MemBlock) extends LazyModuleImp(outer)
   io.outer_beu_errors_icache := RegNext(io.inner_beu_errors_icache)
   io.outer_l2_pf_enable := io.inner_l2_pf_enable
   // io.inner_hc_perfEvents <> io.outer_hc_perfEvents
+  private val mbistPl = MbistPipeline.PlaceMbistPipeline(3, "MbistPipeMemBlk", hasMbist)
 
   if (p(DebugOptionsKey).ResetGen) {
     val resetTree = ResetGenNode(
@@ -1654,7 +1657,7 @@ class MemBlockImp(outer: MemBlock) extends LazyModuleImp(outer)
         ModuleNode(ptw_to_l2_buffer)
       )
     )
-    ResetGen(resetTree, reset, !p(DebugOptionsKey).ResetGen)
+    ResetGen(resetTree, reset, Some(io.dft_reset), !p(DebugOptionsKey).ResetGen)
   } else {
     reset_io_frontend := DontCare
     reset_io_backend := DontCare

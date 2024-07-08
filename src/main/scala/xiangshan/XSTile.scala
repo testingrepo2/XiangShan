@@ -25,10 +25,11 @@ import freechips.rocketchip.tile.{BusErrorUnit, BusErrorUnitParams, BusErrors}
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.amba.axi4._
 import system.HasSoCParameter
-import top.{BusPerfMonitor, ArgParser, Generator}
-import utility.{DelayN, ResetGen, TLClientsMerger, TLEdgeBuffer, TLLogger, Constantin, ChiselDB, FileRegisters}
+import top.{ArgParser, BusPerfMonitor, Generator}
+import utility.{ChiselDB, Constantin, DFTResetSignals, DelayN, FileRegisters, ResetGen, TLClientsMerger, TLEdgeBuffer, TLLogger}
 import coupledL2.EnableCHI
 import coupledL2.tl2chi.PortIO
+import utility.sram.SramHelper
 
 class XSTile()(implicit p: Parameters) extends LazyModule
   with HasXSParameter
@@ -100,6 +101,7 @@ class XSTile()(implicit p: Parameters) extends LazyModule
       }
       val chi = if (enableCHI) Some(new PortIO) else None
       val nodeID = if (enableCHI) Some(Input(UInt(NodeIDWidth.W))) else None
+      val dft_reset = Input(new DFTResetSignals())
     })
 
     dontTouch(io.hartId)
@@ -118,6 +120,11 @@ class XSTile()(implicit p: Parameters) extends LazyModule
 
     l2top.module.beu_errors.icache <> core.module.io.beu_errors.icache
     l2top.module.beu_errors.dcache <> core.module.io.beu_errors.dcache
+    val dft = if (hasMbist) Some(IO(core.module.dft.get.cloneType)) else None
+    if (hasMbist) {
+      core.module.dft.get := dft.get
+      if(enableL2) l2top.module.dft.get := dft.get
+    }
     if (enableL2) {
       // TODO: add ECC interface of L2
 
