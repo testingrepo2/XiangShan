@@ -12,7 +12,7 @@ Copyright 2020-2022 by Peng Cheng Laboratory.
 
 [XiangShan-doc](https://github.com/OpenXiangShan/XiangShan-doc) is our official documentation repository. It contains design spec., technical slides, tutorial and more.
 
-* Micro-architecture documentation of XiangShan has been published. Please check out https://xiangshan-doc.readthedocs.io
+* Micro-architecture documentation of XiangShan has been published. Please check out https://xiangshan-doc.readthedocs.io 
 
 ## Publications
 
